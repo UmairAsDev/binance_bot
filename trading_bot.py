@@ -3,9 +3,8 @@ import argparse
 import requests
 import sqlite3
 from binance.client import Client
-import streamlit as st
 
-# Initialize and Adjust trading fee percentage
+# Initialize and adjust trading fee percentage
 FEE_PERCENTAGE = 0.001  # 0.1% trading fee
 
 # Binance API Settings
@@ -41,11 +40,10 @@ def init_db():
     conn.commit()
     return conn
 
-
-def log_trade(conn, symbol, side, quantity, price):
+def log_trade(conn, symbol, side, quantity, price, usdt_balance, short_ema, long_ema, last_cross, buy_order_value, sell_order_value, pnl):
     cursor = conn.cursor()
-    cursor.execute('INSERT INTO trades (symbol, side, quantity, price) VALUES (?, ?, ?, ?)', 
-                   (symbol, side, quantity, price))
+    cursor.execute('INSERT INTO trades (symbol, side, quantity, price, usdt_balance, short_ema, long_ema, last_cross, buy_order_value, sell_order_value, pnl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', 
+                   (symbol, side, quantity, price, usdt_balance, short_ema, long_ema, last_cross, buy_order_value, sell_order_value, pnl))
     conn.commit()
 
 def send_telegram_message(message):
@@ -104,23 +102,27 @@ def main():
 
             if short_ema > long_ema and last_cross != 'above':
                 usdt_balance = get_balance("USDT", client)
-                if usdt_balance > 10:
+                if usdt_balance > 10:  # Minimum amount to trade
                     print("Placing a BUY order.")
                     buy_order = client.order_market_buy(symbol=args.symbol, quoteOrderQty=usdt_balance)
                     buy_cost = float(buy_order['cummulativeQuoteQty'])
                     buy_amount = sum([float(fill['qty']) for fill in buy_order['fills']])
-                    log_trade(conn, args.symbol, 'BUY', buy_amount, current_price)
+                    
+                    # Log the trade with all necessary information
+                    log_trade(conn, args.symbol, 'BUY', buy_amount, current_price, usdt_balance, short_ema, long_ema, last_cross, usdt_balance, 0, 0)
                     last_cross = 'above'
 
             elif short_ema < long_ema and last_cross != 'below':
                 crypto_balance = get_balance(args.symbol[:-4], client)
-                if crypto_balance > 0.0001:
+                if crypto_balance > 0.0001:  # Minimum amount to sell
                     print("Placing a SELL order.")
                     sell_order = client.order_market_sell(symbol=args.symbol, quantity=crypto_balance)
                     sell_revenue = float(sell_order['cummulativeQuoteQty'])
                     pnl = sell_revenue - buy_cost
                     print(f"PNL: {pnl:.2f} USDT")
-                    log_trade(conn, args.symbol, 'SELL', crypto_balance, current_price)
+                    
+                    # Log the trade with all necessary information
+                    log_trade(conn, args.symbol, 'SELL', crypto_balance, current_price, usdt_balance, short_ema, long_ema, last_cross, 0, sell_revenue, pnl)
                     last_cross = 'below'
 
             time.sleep(5)
