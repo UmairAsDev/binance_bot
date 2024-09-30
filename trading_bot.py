@@ -8,8 +8,8 @@ from binance.client import Client
 FEE_PERCENTAGE = 0.001  # 0.1% trading fee
 
 # Binance API Settings
-API_KEY = "gTHoEEOV9TtFVQBUdeLiqAronwpTNXs9iBonaEqicVN2BvbuKzmkCeBVwLJQzmbA"
-API_SECRET = "ID8CMNFk0WzhpQZzL6MSz8xAbqAD8TTqx3UIGuViN37y3e4oyjOgibSNO2oL2RIs"
+API_KEY = "FbPfUF83BUWUXICdUUQfiL7dWUjsYpD3RYe9PMmPMlZpVfZfPn0uplrnOKgLB4rb"
+API_SECRET = "oq9h93sHfhxdqRfUmg4KLk0Gp9dvdbqoCW4DH9q2UBhuWoytvxcTbPcmHczOxDiL"
 
 # Telegram settings
 ENABLE_TELEGRAM_REPORTING = False
