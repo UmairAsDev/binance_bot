@@ -12,6 +12,7 @@ FEE_PERCENTAGE = 0.001  # 0.1% trading fee
 API_KEY = os.getenv("B_API_KEY")
 API_SECRET = os.getenv("S_KEY")
 
+
 # Telegram settings
 ENABLE_TELEGRAM_REPORTING = False
 TELEGRAM_TOKEN = "YOUR_TELEGRAM_TOKEN"
